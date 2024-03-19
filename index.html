@@ -1,13 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>Coding table</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <nav>
+        <div style="gap: 1rem; display: flex; flex-wrap: wrap">
+          <button id="htmlButton" class="buttonTag" role="button">html</button>
+          <button id="cssButton" class="buttonTag" role="button">css</button>
+          <button id="jsButton" class="buttonTag" role="button">js</button>
+          <button id="tsButton" class="buttonTag" role="button">ts</button>
+        </div>
+        <div style="gap: 1rem; display: flex; flex-wrap: wrap">
+          <button id="settings" class="buttonTag" role="button">
+            settings
+          </button>
+          <button id="copylink" class="buttonTag" role="button">
+            Copylink
+          </button>
+        </div>
+      </nav>
+      <section class="mainGrid">
+        <div style="position: relative">
+          <textarea placeholder="Html" id="html"></textarea>
+          <textarea placeholder="Css" id="css"></textarea>
+          <textarea placeholder="Js" id="js"></textarea>
+          <textarea placeholder="Ts" id="ts"></textarea>
+        </div>
+
+        <div class="grid">
+          <div><iframe></iframe></div>
+          <div>
+            <div class="terminal">terminal</div>
+          </div>
+          <div class="horizontal-gutter"></div>
+        </div>
+      </section>
+    </div>
     <script type="module" src="/main.js"></script>
   </body>
 </html>

@@ -10,5 +10,14 @@
   },
   "devDependencies": {
     "vite": "^5.1.6"
+  },
+  "dependencies": {
+    "js-base64": "^3.7.7",
+    "split-grid": "^1.0.11"
+  },
+  "eslintConfig": {
+    "extendes": [
+      "./node_modules/standard/eslintrc.json"
+    ]
   }
 }
