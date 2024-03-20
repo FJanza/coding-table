@@ -1,6 +1,24 @@
 import "./style.css";
 import Split from "split-grid";
 import {encode, decode} from "js-base64";
+import * as monaco from "monaco-editor";
+import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
+import CssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
+import JsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
+
+window.MonacoEnvironment = {
+  getWorker: (_, label) => {
+    if (label === "html") {
+      return new HtmlWorker();
+    }
+    if (label === "css") {
+      return new CssWorker();
+    }
+    if (label === "js") {
+      return new JsWorker();
+    }
+  },
+};
 
 const getEl = (selector) => document.querySelector(selector);
 
@@ -23,8 +41,6 @@ const $ts = getEl("#ts");
 const $html = getEl("#html");
 const $css = getEl("#css");
 
-updateTabSelect("html");
-
 // Escuchando botones
 
 $jsButton.addEventListener("click", () => {
@@ -40,42 +56,10 @@ $cssButton.addEventListener("click", () => {
   updateTabSelect("css");
 });
 
-// Escuchando text-areas
-
-$js.addEventListener("input", () => {
-  update();
-});
-
-$ts.addEventListener("input", () => {
-  update();
-});
-
-$html.addEventListener("input", () => {
-  update();
-});
-
-$css.addEventListener("input", () => {
-  update();
-});
-
-function updateTabSelect(type) {
-  const types = [
-    {type: "js", element: $js},
-    {type: "ts", element: $ts},
-    {type: "html", element: $html},
-    {type: "css", element: $css},
-  ];
-  types.map((t) => {
-    t.type === type
-      ? t.element.setAttribute("class", "")
-      : t.element.setAttribute("class", "textarea-inactiva");
-  });
-}
-
 function update() {
-  const html = $html.value;
-  const css = $css.value;
-  const js = $js.value;
+  const html = htmlEditor.getValue();
+  const css = cssEditor.getValue();
+  const js = jsEditor.getValue();
 
   const hashedCode = `${encode(html)}|${encode(css)}|${encode(js)}`;
 
@@ -85,22 +69,47 @@ function update() {
   getEl("iframe").setAttribute("srcdoc", createhtml);
 }
 
-function initialize() {
-  const {pathname} = window.location;
+const {pathname} = window.location;
 
-  const [recoverHtml, recoverCss, recoverJs] = pathname.slice(1).split("%7C");
+const [recoverHtml, recoverCss, recoverJs] = pathname.slice(1).split("%7C");
 
-  const html = decode(recoverHtml);
-  const css = decode(recoverCss);
-  const js = decode(recoverJs);
+const html = recoverHtml && decode(recoverHtml);
+const css = recoverCss && decode(recoverCss);
+const js = recoverJs && decode(recoverJs);
+// const ts = decode(recoverTs);
 
-  $html.value = html;
-  $css.value = css;
-  $js.value = js;
+const htmlEditor = monaco.editor.create($html, {
+  value: html,
+  language: "html",
+  theme: "vs-dark",
+});
+const cssEditor = monaco.editor.create($css, {
+  value: css,
+  language: "css",
+  theme: "vs-dark",
+});
+const jsEditor = monaco.editor.create($js, {
+  value: js,
+  language: "javascript",
+  theme: "vs-dark",
+});
+// const tsEditor = monaco.editor.create($ts, {
+//   value: ts,
+//   language: "typescript",
+//   theme: "vs-dark",
+// });
 
-  const createhtml = createHtml({html, css, js});
-  getEl("iframe").setAttribute("srcdoc", createhtml);
-}
+// Escuchando editors
+
+htmlEditor.onDidChangeModelContent(update);
+cssEditor.onDidChangeModelContent(update);
+jsEditor.onDidChangeModelContent(update);
+// tsEditor.onDidChangeModelContent(update);
+
+const createhtml = createHtml({html, css, js});
+getEl("iframe").setAttribute("srcdoc", createhtml);
+
+updateTabSelect("html");
 
 function createHtml({html, css, js}) {
   return `
@@ -123,7 +132,19 @@ function createHtml({html, css, js}) {
   `;
 }
 
-initialize();
+function updateTabSelect(type) {
+  const types = [
+    {type: "js", element: $js},
+    {type: "ts", element: $ts},
+    {type: "html", element: $html},
+    {type: "css", element: $css},
+  ];
+  types.map((t) => {
+    t.type === type
+      ? t.element.setAttribute("class", "editor")
+      : t.element.setAttribute("class", "editor-inactivo");
+  });
+}
 
 // investigar ts
 // <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>

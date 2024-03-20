@@ -11,6 +11,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
 }
 
 * {
@@ -48,6 +49,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: calc(100vh - 64px);
+  max-height: 100%;
 }
 .subGrid {
   display: grid;
@@ -61,44 +63,45 @@ iframe {
   background-color: grey;
 }
 
-textarea {
-  margin: 0;
-  height: 100%;
-  width: 100%;
-  background-color: #333;
-  color: #fff;
-  font-size: 18px;
-  padding: 24px;
-  resize: none;
-  box-shadow: 0 0 0 1px rgba(200, 200, 200, 0.1);
-  background-size: 48px;
-  background-position: 99% 99%;
-  background-repeat: no-repeat;
-}
-
-#js {
-  background-image: url("/brand-javascript.svg");
-}
-#html {
-  background-image: url("/brand-html5.svg");
-}
-#css {
-  background-image: url("/brand-css3.svg");
-}
-#ts {
-  background-image: url("/brand-typescript.svg");
-}
-
-textarea:focus {
-  outline: 0;
-}
-
-.textarea-inactiva {
-  opacity: 0;
+.editor-inactivo {
   position: absolute;
   top: 0;
   left: 0;
   z-index: -9;
+}
+
+.editor {
+  position: relative;
+  height: 100%;
+  max-height: calc(100vh - 64px);
+}
+
+.editor::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 99999;
+  width: 50px;
+  height: 50px;
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+
+#js::after {
+  background-image: url("/brand-javascript.svg");
+}
+
+#html::after {
+  background-image: url("/brand-html5.svg");
+}
+
+#css::after {
+  background-image: url("/brand-css3.svg");
+}
+
+#ts::after {
+  background-image: url("/brand-typescript.svg");
 }
 
 .buttonTag {
@@ -126,13 +129,14 @@ textarea:focus {
 
 .terminal {
   background-color: #1f1f1f;
+  height: 100%;
 }
 
 .grid {
   display: grid;
   grid-template-rows: 1fr 10px 1fr;
   height: 100%;
-  max-height: 90vh;
+  max-height: 100%;
 }
 
 .horizontal-gutter {
@@ -140,3 +144,7 @@ textarea:focus {
   border: solid 5px rgb(83, 83, 83);
   cursor: move;
 }
+
+/* Monaco editor */
+
+/* ARREGLAR MONACO EDITOR */
