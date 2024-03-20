@@ -47,13 +47,13 @@ body {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 50% 50%;
   height: calc(100vh - 64px);
   max-height: 100%;
 }
 .subGrid {
   display: grid;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 49% 49%;
 }
 
 iframe {
@@ -65,6 +65,8 @@ iframe {
 
 .editor-inactivo {
   position: absolute;
+  opacity: 0;
+  height: 0;
   top: 0;
   left: 0;
   z-index: -9;
@@ -120,6 +122,14 @@ iframe {
   -webkit-user-select: none;
 }
 
+.buttonTag:disabled {
+  background-color: #555454;
+  color: #a6a5a5;
+}
+.buttonTag:disabled:hover {
+  filter: brightness(1);
+  cursor: default;
+}
 .buttonTag:hover {
   filter: brightness(2);
 }

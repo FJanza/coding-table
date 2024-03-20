@@ -4,7 +4,6 @@ import {encode, decode} from "js-base64";
 import * as monaco from "monaco-editor";
 import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import CssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
-import JsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 
 window.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -78,26 +77,29 @@ const css = recoverCss && decode(recoverCss);
 const js = recoverJs && decode(recoverJs);
 // const ts = decode(recoverTs);
 
+const DEFAULT_EDITOR_SETTINGS = {
+  automaticLayout: true,
+  fontSize: 16,
+  theme: "vs-dark",
+  padding: {top: 24},
+  codeLens: true,
+};
+
 const htmlEditor = monaco.editor.create($html, {
   value: html,
   language: "html",
-  theme: "vs-dark",
+  ...DEFAULT_EDITOR_SETTINGS,
 });
 const cssEditor = monaco.editor.create($css, {
   value: css,
   language: "css",
-  theme: "vs-dark",
+  ...DEFAULT_EDITOR_SETTINGS,
 });
 const jsEditor = monaco.editor.create($js, {
   value: js,
   language: "javascript",
-  theme: "vs-dark",
+  ...DEFAULT_EDITOR_SETTINGS,
 });
-// const tsEditor = monaco.editor.create($ts, {
-//   value: ts,
-//   language: "typescript",
-//   theme: "vs-dark",
-// });
 
 // Escuchando editors
 
