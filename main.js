@@ -50,6 +50,10 @@ const $css = getEl("#css");
 
 // Escuchando botones
 
+document.querySelector("#btn").onclick = function () {
+  this.classList.toggle("fullscreen");
+};
+
 $terminalButton.addEventListener("click", () => {
   !fullscreen
     ? (document.querySelector(".grid").style["grid-template-rows"] =
@@ -164,9 +168,6 @@ function updateTabSelect(type) {
   });
 }
 
-document.querySelector(".btn").onclick = function () {
-  this.classList.toggle("fullscreen");
-};
 // investigar ts
 // <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 //       <script type="text/babel">
