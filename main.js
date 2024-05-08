@@ -57,7 +57,7 @@ document.querySelector("#btn").onclick = function () {
 $terminalButton.addEventListener("click", () => {
   !fullscreen
     ? (document.querySelector(".grid").style["grid-template-rows"] =
-        "0px 0px 100% ")
+        "0px 0px 3fr")
     : (document.querySelector(".grid").style["grid-template-rows"] =
         "1fr 10px 1fr ");
   $gutter.setAttribute("style", !fullscreen ? "display: none" : "");

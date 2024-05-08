@@ -168,6 +168,7 @@ li svg {
   grid-template-rows: 1fr 10px 1fr;
   height: 100%;
   max-height: calc(100vh - 64px);
+  transition: grid-template-rows 1s ease;
 }
 
 .horizontal-gutter {
