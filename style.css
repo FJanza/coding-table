@@ -179,3 +179,41 @@ li svg {
 /* Monaco editor */
 
 /* ARREGLAR MONACO EDITOR */
+
+.btn {
+  width: 32px;
+  height: 32px;
+  background-color: #505050;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  border-radius: 8px;
+}
+.btn:active {
+  background-color: #e4e4e4;
+}
+.part1,
+.part2 {
+  width: 16px;
+  height: 16px;
+  background-image: url(https://cdn0.iconfinder.com/data/icons/feather/96/591275-arrow-up-64.png);
+  background-size: 16px;
+  float: left;
+  transition: all 0.2s ease-out;
+}
+.part1 {
+  transform: rotate(-135deg);
+  position: relative;
+  top: 16px;
+}
+.part2 {
+  transform: rotate(45deg);
+}
+.btn.fullscreen {
+  transform: scale(1.1);
+}
+.btn.fullscreen .part1 {
+  transform: rotate(45deg);
+}
+.btn.fullscreen .part2 {
+  transform: rotate(225deg);
+}

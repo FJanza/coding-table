@@ -25,7 +25,7 @@ window.MonacoEnvironment = {
 
 const getEl = (selector) => document.querySelector(selector);
 
-Split({
+const split = Split({
   rowGutters: [
     {
       track: 1,
@@ -38,6 +38,10 @@ const $jsButton = getEl("#jsButton");
 const $tsButton = getEl("#tsButton");
 const $htmlButton = getEl("#htmlButton");
 const $cssButton = getEl("#cssButton");
+const $terminalButton = getEl("#btn");
+const $preview = getEl("#preview");
+const $gutter = getEl("#horizontal-gutter");
+let fullscreen = false;
 
 const $js = getEl("#js");
 const $ts = getEl("#ts");
@@ -45,6 +49,16 @@ const $html = getEl("#html");
 const $css = getEl("#css");
 
 // Escuchando botones
+
+$terminalButton.addEventListener("click", () => {
+  !fullscreen
+    ? (document.querySelector(".grid").style["grid-template-rows"] =
+        "0px 0px 100% ")
+    : (document.querySelector(".grid").style["grid-template-rows"] =
+        "1fr 10px 1fr ");
+  $gutter.setAttribute("style", !fullscreen ? "display: none" : "");
+  fullscreen = !fullscreen;
+});
 
 $jsButton.addEventListener("click", () => {
   updateTabSelect("javascript");
@@ -150,6 +164,9 @@ function updateTabSelect(type) {
   });
 }
 
+document.querySelector(".btn").onclick = function () {
+  this.classList.toggle("fullscreen");
+};
 // investigar ts
 // <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 //       <script type="text/babel">

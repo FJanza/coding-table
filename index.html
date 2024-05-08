@@ -65,14 +65,28 @@
         </div>
 
         <div class="grid">
-          <div><iframe></iframe></div>
+          <div id="preview"><iframe></iframe></div>
           <div>
             <div class="console" id="console">
-              <h3 style="padding-left: 1rem">Terminal</h3>
+              <div
+                style="
+                  padding-left: 1rem;
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  gap: 1rem;
+                "
+              >
+                <div class="btn" id="btn">
+                  <div class="part1"></div>
+                  <div class="part2"></div>
+                </div>
+                <h3>Terminal</h3>
+              </div>
               <ul class="console-list"></ul>
             </div>
           </div>
-          <div class="horizontal-gutter"></div>
+          <div id="horizontal-gutter" class="horizontal-gutter"></div>
         </div>
       </section>
     </div>
