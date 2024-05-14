@@ -118,7 +118,7 @@ const cssEditor = monaco.editor.create($css, {
 });
 const jsEditor = monaco.editor.create($js, {
   value: js,
-  language: "javaScript",
+  language: "javascript",
   ...DEFAULT_EDITOR_SETTINGS,
 });
 
