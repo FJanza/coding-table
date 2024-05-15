@@ -39,7 +39,6 @@ const $tsButton = getEl("#tsButton");
 const $htmlButton = getEl("#htmlButton");
 const $cssButton = getEl("#cssButton");
 const $terminalButton = getEl("#btn");
-const $preview = getEl("#preview");
 const $gutter = getEl("#horizontal-gutter");
 let fullscreen = false;
 

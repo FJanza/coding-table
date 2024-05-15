@@ -14,8 +14,8 @@ export const generateConsoleScript = ({html, css}) => {
   
         w.onerror = (message, url, line, column) => {
           const DEFAULT_LINE_HEIGHT = 53
-          const htmlLines = ${html.split("\n").length}
-          const cssLines = ${css.split("\n").length}
+          const htmlLines = ${html?.split("\n").length}
+          const cssLines = ${css?.split("\n").length}
           const fixedLine = line - DEFAULT_LINE_HEIGHT - htmlLines - cssLines
           pushToConsole({line:fixedLine, column, message}, "error")
         }
