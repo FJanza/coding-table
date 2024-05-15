@@ -1,11 +1,13 @@
 import "./style.css";
 import Split from "split-grid";
+import "./console.js";
 import {encode, decode} from "js-base64";
 import * as monaco from "monaco-editor";
 
 import CssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import JsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
+import {generateConsoleScript} from "./console-script.js";
 
 window.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -15,7 +17,7 @@ window.MonacoEnvironment = {
     if (label === "css") {
       return new CssWorker();
     }
-    if (label === "js") {
+    if (label === "javascript") {
       return new JsWorker();
     }
   },
@@ -23,7 +25,7 @@ window.MonacoEnvironment = {
 
 const getEl = (selector) => document.querySelector(selector);
 
-Split({
+const split = Split({
   rowGutters: [
     {
       track: 1,
@@ -36,6 +38,9 @@ const $jsButton = getEl("#jsButton");
 const $tsButton = getEl("#tsButton");
 const $htmlButton = getEl("#htmlButton");
 const $cssButton = getEl("#cssButton");
+const $terminalButton = getEl("#btn");
+const $gutter = getEl("#horizontal-gutter");
+let fullscreen = false;
 
 const $js = getEl("#js");
 const $ts = getEl("#ts");
@@ -44,8 +49,22 @@ const $css = getEl("#css");
 
 // Escuchando botones
 
+document.querySelector("#btn").onclick = function () {
+  this.classList.toggle("fullscreen");
+};
+
+$terminalButton.addEventListener("click", () => {
+  !fullscreen
+    ? (document.querySelector(".grid").style["grid-template-rows"] =
+        "0px 0px 3fr")
+    : (document.querySelector(".grid").style["grid-template-rows"] =
+        "1fr 10px 1fr ");
+  $gutter.setAttribute("style", !fullscreen ? "display: none" : "");
+  fullscreen = !fullscreen;
+});
+
 $jsButton.addEventListener("click", () => {
-  updateTabSelect("js");
+  updateTabSelect("javascript");
 });
 $tsButton.addEventListener("click", () => {
   updateTabSelect("ts");
@@ -98,7 +117,7 @@ const cssEditor = monaco.editor.create($css, {
 });
 const jsEditor = monaco.editor.create($js, {
   value: js,
-  language: "javaScript",
+  language: "javascript",
   ...DEFAULT_EDITOR_SETTINGS,
 });
 
@@ -112,8 +131,6 @@ jsEditor.onDidChangeModelContent(update);
 const createhtml = createHtml({html, css, js});
 getEl("iframe").setAttribute("srcdoc", createhtml);
 
-updateTabSelect("html");
-
 function createHtml({html, css, js}) {
   return `
   <!DOCTYPE html>
@@ -122,6 +139,7 @@ function createHtml({html, css, js}) {
       <style>
         ${css}
       </style>
+      ${generateConsoleScript({html, css})}
     </head>
     <body>
       ${html}
@@ -137,7 +155,7 @@ function createHtml({html, css, js}) {
 
 function updateTabSelect(type) {
   const types = [
-    {type: "js", element: $js},
+    {type: "javascript", element: $js},
     {type: "ts", element: $ts},
     {type: "html", element: $html},
     {type: "css", element: $css},

@@ -8,8 +8,14 @@
   </head>
   <body>
     <div id="app">
-      <nav>
-        <div style="gap: 1rem; display: flex; flex-wrap: wrap">
+      <nav
+        style="
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+        "
+      >
+        <div style="gap: 1rem; display: flex; flex-wrap: wrap; flex: 1">
           <button id="htmlButton" class="buttonTag" role="button">html</button>
           <button id="cssButton" class="buttonTag" role="button">css</button>
           <button id="jsButton" class="buttonTag" role="button">js</button>
@@ -17,7 +23,33 @@
             ts
           </button>
         </div>
-        <div style="gap: 1rem; display: flex; flex-wrap: wrap">
+        <div style="flex: 1; display: flex; justify-content: center">
+          <a
+            href="https://codi.link"
+            target="_blank"
+            style="
+              color: rgba(255, 255, 255, 0.87);
+              text-decoration: none;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              gap: 5px;
+            "
+          >
+            <span>Based on</span>
+            <img src="/codilink.ico" width="20px" />
+            <span>CodiLink</span></a
+          >
+        </div>
+        <div
+          style="
+            gap: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+            justify-content: end;
+          "
+        >
           <button id="settings" class="buttonTag" role="button">
             settings
           </button>
@@ -28,18 +60,35 @@
       </nav>
       <section class="mainGrid">
         <div style="position: relative">
-          <div id="html" class="editor"></div>
-          <div id="css" class="editor"></div>
+          <div id="html" class="editor-inactivo"></div>
+          <div id="css" class="editor-inactivo"></div>
+          <div id="ts" class="editor-inactivo"></div>
           <div id="js" class="editor"></div>
-          <div id="ts" class="editor"></div>
         </div>
 
         <div class="grid">
-          <div><iframe></iframe></div>
+          <div id="preview"><iframe></iframe></div>
           <div>
-            <div class="terminal">terminal</div>
+            <div class="console" id="console">
+              <div
+                style="
+                  padding-left: 1rem;
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  gap: 1rem;
+                "
+              >
+                <div class="btn" id="btn">
+                  <div class="part1"></div>
+                  <div class="part2"></div>
+                </div>
+                <h3>Terminal</h3>
+              </div>
+              <ul class="console-list"></ul>
+            </div>
           </div>
-          <div class="horizontal-gutter"></div>
+          <div id="horizontal-gutter" class="horizontal-gutter"></div>
         </div>
       </section>
     </div>

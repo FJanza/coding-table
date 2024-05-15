@@ -137,9 +137,30 @@ iframe {
   filter: brightness(1.5);
 }
 
-.terminal {
-  background-color: #1f1f1f;
+.console {
   height: 100%;
+}
+.console-list {
+  margin: 0;
+  padding: 1rem;
+  max-height: 100%;
+  list-style-type: none;
+}
+li {
+  color: #a7a7a7;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-bottom: 5px;
+  /* border-bottom: solid 1px #a7a7a7; */
+  box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.14);
+  -webkit-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.14);
+  -moz-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.14);
+}
+
+li svg {
+  color: rgb(220, 220, 220);
 }
 
 .grid {
@@ -147,6 +168,7 @@ iframe {
   grid-template-rows: 1fr 10px 1fr;
   height: 100%;
   max-height: calc(100vh - 64px);
+  transition: grid-template-rows 1s ease;
 }
 
 .horizontal-gutter {
@@ -158,3 +180,41 @@ iframe {
 /* Monaco editor */
 
 /* ARREGLAR MONACO EDITOR */
+
+.btn {
+  width: 32px;
+  height: 32px;
+  background-color: #505050;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  border-radius: 8px;
+}
+.btn:active {
+  background-color: #e4e4e4;
+}
+.part1,
+.part2 {
+  width: 16px;
+  height: 16px;
+  background-image: url(https://cdn0.iconfinder.com/data/icons/feather/96/591275-arrow-up-64.png);
+  background-size: 16px;
+  float: left;
+  transition: all 0.2s ease-out;
+}
+.part1 {
+  transform: rotate(-135deg);
+  position: relative;
+  top: 16px;
+}
+.part2 {
+  transform: rotate(45deg);
+}
+.btn.fullscreen {
+  transform: scale(1.1);
+}
+.btn.fullscreen .part1 {
+  transform: rotate(45deg);
+}
+.btn.fullscreen .part2 {
+  transform: rotate(225deg);
+}
