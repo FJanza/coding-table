@@ -31,3 +31,7 @@ To run in local project
 
 - [@FJanza](https://github.com/FJanza)
 
+## Contributor
+
+- Icon Design, Melani Kaplan
+
