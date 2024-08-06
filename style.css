@@ -114,7 +114,7 @@ iframe {
   color: #fff;
   cursor: pointer;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   outline: none;
   padding: 10px 20px;
   text-align: center;
@@ -123,18 +123,19 @@ iframe {
 }
 
 .buttonTag:disabled {
-  background-color: #555454;
-  color: #a6a5a5;
+  background-color: #424242;
+  color: #5a5959;
 }
+
 .buttonTag:disabled:hover {
   filter: brightness(1);
   cursor: default;
 }
 .buttonTag:hover {
-  filter: brightness(2);
+  filter: brightness(1.2);
 }
 .buttonTag:focus-visible {
-  filter: brightness(1.5);
+  filter: brightness(2);
 }
 
 .console {

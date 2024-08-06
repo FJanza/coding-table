@@ -14,7 +14,8 @@
   "dependencies": {
     "js-base64": "^3.7.7",
     "monaco-editor": "^0.47.0",
-    "split-grid": "^1.0.11"
+    "split-grid": "^1.0.11",
+    "sweetalert2": "^11.12.4"
   },
   "eslintConfig": {
     "extendes": [

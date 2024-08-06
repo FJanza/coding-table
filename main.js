@@ -3,11 +3,11 @@ import Split from "split-grid";
 import "./console.js";
 import {encode, decode} from "js-base64";
 import * as monaco from "monaco-editor";
-
 import CssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import JsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 import {generateConsoleScript} from "./console-script.js";
+import Swal from "sweetalert2";
 
 window.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -34,6 +34,7 @@ const split = Split({
   ],
 });
 
+const $copyLink = getEl("#copylink");
 const $jsButton = getEl("#jsButton");
 const $tsButton = getEl("#tsButton");
 const $htmlButton = getEl("#htmlButton");
@@ -63,16 +64,42 @@ $terminalButton.addEventListener("click", () => {
   fullscreen = !fullscreen;
 });
 
+function changeButtonColor($Button, buttons) {
+  buttons.map(($b) => {
+    $b.setAttribute(
+      "style",
+      `background-color: ${$b === $Button ? "#505050" : "#222"}`
+    );
+  });
+}
+
+const $Buttons = [$jsButton, $htmlButton, $cssButton];
+
+$copyLink.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(window.location.href);
+  Swal.fire({
+    title: "📎 Copied Link! ",
+    icon: "success",
+    toast: true,
+    position: "bottom-end",
+    showConfirmButton: false,
+    timer: 1500,
+    padding: "5px 0 5px 5px",
+  });
+});
 $jsButton.addEventListener("click", () => {
+  changeButtonColor($jsButton, $Buttons);
   updateTabSelect("javascript");
 });
 $tsButton.addEventListener("click", () => {
   updateTabSelect("ts");
 });
 $htmlButton.addEventListener("click", () => {
+  changeButtonColor($htmlButton, $Buttons);
   updateTabSelect("html");
 });
 $cssButton.addEventListener("click", () => {
+  changeButtonColor($cssButton, $Buttons);
   updateTabSelect("css");
 });
 
