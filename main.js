@@ -6,9 +6,11 @@ import * as monaco from "monaco-editor";
 import CssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import JsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
+import TsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 import {generateConsoleScript} from "./console-script.js";
 import Swal from "sweetalert2";
 import {setupEditorSettingsModal} from "./editor-settings.js";
+import {jsSnippets} from "./js-snippets.js";
 
 window.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -20,6 +22,9 @@ window.MonacoEnvironment = {
     }
     if (label === "javascript") {
       return new JsWorker();
+    }
+    if (label === "typescript") {
+      return new TsWorker();
     }
   },
 };
@@ -40,7 +45,6 @@ const $jsButton = getEl("#jsButton");
 const $tsButton = getEl("#tsButton");
 const $htmlButton = getEl("#htmlButton");
 const $cssButton = getEl("#cssButton");
-const $terminalButton = getEl("#btn");
 const $gutter = getEl("#horizontal-gutter");
 let fullscreen = false;
 
@@ -48,33 +52,18 @@ const $js = getEl("#js");
 const $ts = getEl("#ts");
 const $html = getEl("#html");
 const $css = getEl("#css");
+const $consoleList = getEl("#console .console-list");
 
 // Escuchando botones
 
-document.querySelector("#btn").onclick = function () {
-  this.classList.toggle("fullscreen");
-};
-
-$terminalButton.addEventListener("click", () => {
-  !fullscreen
-    ? (document.querySelector(".grid").style["grid-template-rows"] =
-        "0px 0px 3fr")
-    : (document.querySelector(".grid").style["grid-template-rows"] =
-        "1fr 10px 1fr ");
-  $gutter.setAttribute("style", !fullscreen ? "display: none" : "");
-  fullscreen = !fullscreen;
-});
-
 function changeButtonColor($Button, buttons) {
-  buttons.map(($b) => {
-    $b.setAttribute(
-      "style",
-      `background-color: ${$b === $Button ? "#505050" : "#222"}`
-    );
+  buttons.forEach(($b) => {
+    $b.classList.remove("active");
   });
+  $Button.classList.add("active");
 }
 
-const $Buttons = [$jsButton, $htmlButton, $cssButton];
+const $Buttons = [$jsButton, $htmlButton, $cssButton, $tsButton];
 
 $copyLink.addEventListener("click", async () => {
   await navigator.clipboard.writeText(window.location.href);
@@ -93,6 +82,7 @@ $jsButton.addEventListener("click", () => {
   updateTabSelect("javascript");
 });
 $tsButton.addEventListener("click", () => {
+  changeButtonColor($tsButton, $Buttons);
   updateTabSelect("ts");
 });
 $htmlButton.addEventListener("click", () => {
@@ -108,23 +98,56 @@ function update() {
   const html = htmlEditor.getValue();
   const css = cssEditor.getValue();
   const js = jsEditor.getValue();
+  const ts = tsEditor.getValue();
 
-  const hashedCode = `${encode(html)}|${encode(css)}|${encode(js)}`;
+  // Deshabilitar el editor contrario y el botón si hay código
+  if (js.trim() && !ts.trim()) {
+    tsEditor.updateOptions({readOnly: true});
+    jsEditor.updateOptions({readOnly: false});
+    $tsButton.setAttribute("disabled", "disabled");
+    $jsButton.removeAttribute("disabled");
+  } else if (ts.trim() && !js.trim()) {
+    jsEditor.updateOptions({readOnly: true});
+    tsEditor.updateOptions({readOnly: false});
+    $jsButton.setAttribute("disabled", "disabled");
+    $tsButton.removeAttribute("disabled");
+  } else if (!js.trim() && !ts.trim()) {
+    jsEditor.updateOptions({readOnly: false});
+    tsEditor.updateOptions({readOnly: false});
+    $jsButton.removeAttribute("disabled");
+    $tsButton.removeAttribute("disabled");
+  }
+
+  const hashedCode = `${encode(html)}|${encode(css)}|${encode(js)}|${encode(
+    ts
+  )}`;
 
   window.history.replaceState(null, null, `/${hashedCode}`);
 
-  const createhtml = createHtml({html, css, js});
+  // Si hay código TS, lo transpilo a JS para el preview
+  let jsToRun = js;
+  if (ts && ts.trim()) {
+    try {
+      jsToRun = window.ts && window.ts.transpile ? window.ts.transpile(ts) : js;
+    } catch (e) {
+      jsToRun = js + "\n// Error al transpilar TS";
+    }
+  }
+
+  const createhtml = createHtml({html, css, js: jsToRun});
   getEl("iframe").setAttribute("srcdoc", createhtml);
 }
 
 const {pathname} = window.location;
 
-const [recoverHtml, recoverCss, recoverJs] = pathname.slice(1).split("%7C");
+const [recoverHtml, recoverCss, recoverJs, recoverTs] = pathname
+  .slice(1)
+  .split("%7C");
 
 const html = recoverHtml && decode(recoverHtml);
 const css = recoverCss && decode(recoverCss);
 const js = recoverJs && decode(recoverJs);
-// const ts = decode(recoverTs);
+const ts = recoverTs && decode(recoverTs);
 
 const DEFAULT_EDITOR_SETTINGS = {
   automaticLayout: true,
@@ -148,19 +171,26 @@ const jsEditor = monaco.editor.create($js, {
   language: "javascript",
   ...DEFAULT_EDITOR_SETTINGS,
 });
+const tsEditor = monaco.editor.create($ts, {
+  value: ts || "",
+  language: "typescript",
+  ...DEFAULT_EDITOR_SETTINGS,
+});
 
 // Inicializar el modal de settings del editor Monaco
 setupEditorSettingsModal({
   monaco,
-  editors: [htmlEditor, cssEditor, jsEditor],
+  editors: [htmlEditor, cssEditor, jsEditor, tsEditor],
 });
 
 // Escuchando editors
-
 htmlEditor.onDidChangeModelContent(update);
 cssEditor.onDidChangeModelContent(update);
 jsEditor.onDidChangeModelContent(update);
-// tsEditor.onDidChangeModelContent(update);
+tsEditor.onDidChangeModelContent(update);
+
+// Sincronizar estado de editores y botones al cargar
+update();
 
 const createhtml = createHtml({html, css, js});
 getEl("iframe").setAttribute("srcdoc", createhtml);
@@ -208,368 +238,60 @@ function updateTabSelect(type) {
 //       </script>
 
 // Snippets de JavaScript (ES6) code snippets extension
+// Importa los datos puros y mapea a enums de monaco
+
+const jsSnippetsWithEnums = jsSnippets.map((snippet) => ({
+  ...snippet,
+  kind: monaco.languages.CompletionItemKind.Snippet,
+  insertTextRules:
+    monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+}));
+
 monaco.languages.registerCompletionItemProvider("javascript", {
   provideCompletionItems: function () {
     return {
-      suggestions: [
-        // Import and export
-        {
-          label: "imp",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "import $1 from '$2';",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "imports entire module",
-        },
-        {
-          label: "imn",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "import '$1';",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "imports entire module without module name",
-        },
-        {
-          label: "imd",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "import { $1 } from '$2';",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation:
-            "imports only a portion of the module using destructuring",
-        },
-        {
-          label: "ime",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "import * as $1 from '$2';",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "imports everything as alias from the module",
-        },
-        {
-          label: "ima",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "import { $1 as $2 } from '$3';",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "imports only a portion of the module as alias",
-        },
-        {
-          label: "rqr",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "require('$1');",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "require package",
-        },
-        {
-          label: "req",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "const $1 = require('$2');",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "require package to const",
-        },
-        {
-          label: "mde",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "module.exports = {};",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "default module.exports",
-        },
-        {
-          label: "env",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "export const $1 = $2;",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "exports name variable",
-        },
-        {
-          label: "enf",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "export const $1 = ($2) => { console.log($2); };",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "exports name function",
-        },
-        {
-          label: "edf",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "export default function $1($2) { console.log($2); }",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "exports default function",
-        },
-        {
-          label: "ecl",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "export default class $1 { }",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "exports default class",
-        },
-        {
-          label: "ece",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "export default class $1 extends $2 { }",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "exports default class by extending a base one",
-        },
-        // Class helpers
-        {
-          label: "con",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "constructor() {\n  $0\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "default constructor in the class",
-        },
-        {
-          label: "met",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "$1() {\n  $0\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "method inside a class",
-        },
-        {
-          label: "pge",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "get $1() {\n  return $0;\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "getter property",
-        },
-        {
-          label: "pse",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "set $1(value) {\n  $0\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "setter property",
-        },
-        // Various methods
-        {
-          label: "fre",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "$1.forEach($2 => {\n  $0\n});",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "forEach loop in ES6 syntax",
-        },
-        {
-          label: "fof",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "for (const $1 of $2) {\n  $0\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "for ... of loop",
-        },
-        {
-          label: "fin",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "for (const $1 in $2) {\n  $0\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "for ... in loop",
-        },
-        {
-          label: "anfn",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "($1) => {\n  $0\n}",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "anonymous function",
-        },
-        {
-          label: "nfn",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "const $1 = ($2) => {\n  $0\n};",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "named function",
-        },
-        {
-          label: "dob",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "const { $1 } = $2;",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "destructuring object",
-        },
-        {
-          label: "dar",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "const [ $1 ] = $2;",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "destructuring array",
-        },
-        {
-          label: "sti",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "setInterval(() => {\n  $0\n}, $1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "setInterval helper",
-        },
-        {
-          label: "sto",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "setTimeout(() => {\n  $0\n}, $1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "setTimeout helper",
-        },
-        {
-          label: "prom",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "return new Promise((resolve, reject) => {\n  $0\n});",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "new Promise",
-        },
-        {
-          label: "thenc",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: ".then(res => { $0 }).catch(err => { })",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "then/catch",
-        },
-        // Console methods
-        {
-          label: "cas",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.assert($1, $2);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.assert",
-        },
-        {
-          label: "ccl",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.clear();",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.clear",
-        },
-        {
-          label: "cco",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.count($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.count",
-        },
-        {
-          label: "cdb",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.debug($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.debug",
-        },
-        {
-          label: "cdi",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.dir($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.dir",
-        },
-        {
-          label: "cer",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.error($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.error",
-        },
-        {
-          label: "cgr",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.group($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.group",
-        },
-        {
-          label: "cge",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.groupEnd();",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.groupEnd",
-        },
-        {
-          label: "clg",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.log($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.log",
-        },
-        {
-          label: "clo",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.log('$1 :>> ', $1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.log object with name",
-        },
-        {
-          label: "ctr",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.trace($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.trace",
-        },
-        {
-          label: "cwa",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.warn($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.warn",
-        },
-        {
-          label: "cin",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.info($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.info",
-        },
-        {
-          label: "clt",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.table($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.table",
-        },
-        {
-          label: "cti",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.time($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.time",
-        },
-        {
-          label: "cte",
-          kind: monaco.languages.CompletionItemKind.Snippet,
-          insertText: "console.timeEnd($1);",
-          insertTextRules:
-            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          documentation: "console.timeEnd",
-        },
-      ],
+      suggestions: jsSnippetsWithEnums,
     };
   },
 });
+monaco.languages.registerCompletionItemProvider("typescript", {
+  provideCompletionItems: function () {
+    return {
+      suggestions: jsSnippetsWithEnums,
+    };
+  },
+});
+
+function clearConsole() {
+  $consoleList.innerHTML = "";
+}
+
+// Modificar el eventListener para una sola terminal
+window.addEventListener("message", (ev) => {
+  const {console: consoleData} = ev.data;
+  if (!consoleData) return;
+  const payload = consoleData?.payload;
+  const type = consoleData?.type;
+  if (type === "system" && payload === "clear") {
+    clearConsole();
+    return;
+  }
+  // ...lógica para crear y agregar el log a $consoleList...
+});
+
+// Al cargar, marcar el botón activo según el editor visible
+function setInitialActiveButton() {
+  const editors = [
+    {el: $js, btn: $jsButton},
+    {el: $ts, btn: $tsButton},
+    {el: $html, btn: $htmlButton},
+    {el: $css, btn: $cssButton},
+  ];
+  const active = editors.find(({el}) => el.classList.contains("editor"));
+  if (active) {
+    changeButtonColor(active.btn, $Buttons);
+  }
+}
+
+// Llamar después de updateTabSelect o al cargar
+setInitialActiveButton();
