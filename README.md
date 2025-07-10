@@ -5,6 +5,7 @@ This is an open-source online code editor that supports JavaScript, TypeScript, 
 
 ## Screenshots
 
+![image](https://github.com/FJanza/coding-table/assets/62725867/c0587c48-e97d-4214-8c2c-24ec7f1bea8b)
 
 
 ## Dependencies
@@ -29,4 +30,8 @@ To run in local project
 ## Authors
 
 - [@FJanza](https://github.com/FJanza)
+
+## Contributor
+
+- Icon Design, Melani Kaplan
 

@@ -41,6 +41,7 @@ export function setupEditorSettingsModal({monaco, editors}) {
         editors[0].getOption &&
         editors[0].getOption(monaco.editor.EditorOption.lineNumbers);
       $editorLineNumbers.value = lineNumbersOpt !== "off" ? "on" : "off";
+
       $editorMinimap.value = (
         editors[0].getOption &&
         editors[0].getOption(monaco.editor.EditorOption.minimap)
@@ -86,6 +87,7 @@ export function setupEditorSettingsModal({monaco, editors}) {
     const insertSpaces = $editorInsertSpaces.value === "true";
     // Corregido: lineNumbers debe ser 'on' o 'off', no 'true'/'false'
     const lineNumbers = $editorLineNumbers.value;
+
     const minimap = {enabled: $editorMinimap.value === "on"};
     const wordWrap = $editorWordWrap.value;
     const glyphMargin = $editorGlyphMargin.value === "true";
