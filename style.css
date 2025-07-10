@@ -76,6 +76,8 @@ iframe {
   position: relative;
   height: 100%;
   max-height: calc(100vh - 64px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .editor::after {
@@ -125,6 +127,11 @@ iframe {
 .buttonTag:disabled {
   background-color: #424242;
   color: #5a5959;
+  background-image: url('data:image/svg+xml;utf8,<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="11" width="14" height="8" rx="2" fill="%235a5959" stroke="%23888888" stroke-width="2"/><path d="M8 11V8a4 4 0 118 0v3" stroke="%23888888" stroke-width="2" stroke-linecap="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px 18px;
+  padding-right: 36px;
 }
 
 .buttonTag:disabled:hover {
@@ -136,6 +143,11 @@ iframe {
 }
 .buttonTag:focus-visible {
   filter: brightness(2);
+}
+.buttonTag.active {
+  background-color: #505050;
+  color: #fff;
+  filter: brightness(1.3);
 }
 
 .console {

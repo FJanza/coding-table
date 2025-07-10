@@ -32,13 +32,10 @@ const isPrimitive = (item) => {
 const createListItem = (content, type) => {
   const $li = document.createElement("li");
   $li.classList.add(`log-${type.split(":")[1]}`);
-
   $li.innerHTML = CONSOLE_ICONS[type];
-
   const $span = document.createElement("span");
   $span.textContent = content;
   $li.appendChild($span);
-
   return $li;
 };
 

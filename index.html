@@ -19,7 +19,7 @@
           <button id="htmlButton" class="buttonTag" role="button">html</button>
           <button id="cssButton" class="buttonTag" role="button">css</button>
           <button id="jsButton" class="buttonTag" role="button">js</button>
-          <button id="tsButton" class="buttonTag" role="button" disabled>
+          <button id="tsButton" class="buttonTag" role="button">
             ts
           </button>
         </div>
@@ -58,6 +58,180 @@
           </button>
         </div>
       </nav>
+      <!-- Modal de configuración del editor -->
+      <div
+        id="settingsModal"
+        style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 0.5);
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        "
+      >
+        <div
+          style="
+            background: #272727;
+            padding: 2rem;
+            border-radius: 8px;
+            min-width: 300px;
+            max-width: 90vw;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+          "
+        >
+          <h2>Configuración del editor</h2>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Tema:
+            <select id="editorTheme">
+              <option value="vs-dark">Oscuro (vs-dark)</option>
+              <option value="vs-light">Claro (vs-light)</option>
+              <option value="hc-black">Alto Contraste (hc-black)</option>
+              <option value="hc-light">Alto Contraste Claro (hc-light)</option>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Tamaño de fuente:
+            <input
+              type="number"
+              id="editorFontSize"
+              min="10"
+              max="32"
+              value="14"
+            />
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Tabulación:
+            <input
+              type="number"
+              id="editorTabSize"
+              min="2"
+              max="8"
+              value="2"
+              style="width: 60px"
+            />
+            <select id="editorInsertSpaces">
+                <option value="true">Espacios</option>
+                <option value="false">Tabs</option>
+              </div>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Números de línea:
+            <select id="editorLineNumbers">
+              <option value="on">Mostrar</option>
+              <option value="off">Ocultar</option>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Minimapa:
+            <select id="editorMinimap">
+              <option value="on">Mostrar</option>
+              <option value="off">Ocultar</option>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Ajuste de línea:
+            <select id="editorWordWrap">
+              <option value="off">No</option>
+              <option value="on">Sí</option>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Barra de selección:
+            <select id="editorGlyphMargin">
+              <option value="true">Mostrar</option>
+              <option value="false">Ocultar</option>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Espacios en blanco:
+            <select id="editorRenderWhitespace">
+              <option value="none">Ninguno</option>
+              <option value="boundary">Límites</option>
+              <option value="all">Todos</option>
+            </select>
+          </label>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 1rem;
+            "
+          >
+            Autocompletado JS:
+            <select id="editorJsSuggest">
+              <option value="on">Activado</option>
+              <option value="off">Desactivado</option>
+            </select>
+          </label>
+          <div style="display: flex; gap: 1rem; justify-content: flex-end">
+            <button id="saveSettings">Guardar</button>
+            <button id="closeSettings">Cerrar</button>
+          </div>
+        </div>
+      </div>
       <section class="mainGrid">
         <div style="position: relative">
           <div id="html" class="editor-inactivo"></div>
@@ -70,7 +244,7 @@
           <div id="preview"><iframe></iframe></div>
           <div>
             <div class="console" id="console">
-              <div
+                            <div
                 style="
                   padding-left: 1rem;
                   display: flex;
@@ -83,7 +257,7 @@
                   <div class="part1"></div>
                   <div class="part2"></div>
                 </div>
-                <h3>Terminal</h3>
+                                <h3>Terminal</h3>
               </div>
               <ul class="console-list"></ul>
             </div>
@@ -93,5 +267,6 @@
       </section>
     </div>
     <script type="module" src="/main.js"></script>
+    <script src="https://unpkg.com/typescript@latest/lib/typescript.js"></script>
   </body>
 </html>
