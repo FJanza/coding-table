@@ -46,6 +46,9 @@ const $tsButton = getEl("#tsButton");
 const $htmlButton = getEl("#htmlButton");
 const $cssButton = getEl("#cssButton");
 const $gutter = getEl("#horizontal-gutter");
+const $terminalBtn = getEl("#btn");
+const $console = getEl(".console");
+const $grid = getEl(".grid");
 let fullscreen = false;
 
 const $js = getEl("#js");
@@ -92,6 +95,15 @@ $htmlButton.addEventListener("click", () => {
 $cssButton.addEventListener("click", () => {
   changeButtonColor($cssButton, $Buttons);
   updateTabSelect("css");
+});
+$terminalBtn.addEventListener("click", () => {
+  fullscreen = !fullscreen;
+  $terminalBtn.classList.toggle("fullscreen", fullscreen);
+  if (fullscreen) {
+    $grid.style.gridTemplateRows = "0 0 1fr";
+  } else {
+    $grid.style.gridTemplateRows = "1fr 10px 1fr";
+  }
 });
 
 function update() {
