@@ -76,6 +76,8 @@ iframe {
   position: relative;
   height: 100%;
   max-height: calc(100vh - 64px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .editor::after {

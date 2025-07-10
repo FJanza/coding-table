@@ -8,6 +8,7 @@ import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import JsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 import {generateConsoleScript} from "./console-script.js";
 import Swal from "sweetalert2";
+import {setupEditorSettingsModal} from "./editor-settings.js";
 
 window.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -148,6 +149,12 @@ const jsEditor = monaco.editor.create($js, {
   ...DEFAULT_EDITOR_SETTINGS,
 });
 
+// Inicializar el modal de settings del editor Monaco
+setupEditorSettingsModal({
+  monaco,
+  editors: [htmlEditor, cssEditor, jsEditor],
+});
+
 // Escuchando editors
 
 htmlEditor.onDidChangeModelContent(update);
@@ -199,3 +206,370 @@ function updateTabSelect(type) {
 //       <script type="text/babel">
 //       ${ts}
 //       </script>
+
+// Snippets de JavaScript (ES6) code snippets extension
+monaco.languages.registerCompletionItemProvider("javascript", {
+  provideCompletionItems: function () {
+    return {
+      suggestions: [
+        // Import and export
+        {
+          label: "imp",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "import $1 from '$2';",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "imports entire module",
+        },
+        {
+          label: "imn",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "import '$1';",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "imports entire module without module name",
+        },
+        {
+          label: "imd",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "import { $1 } from '$2';",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation:
+            "imports only a portion of the module using destructuring",
+        },
+        {
+          label: "ime",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "import * as $1 from '$2';",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "imports everything as alias from the module",
+        },
+        {
+          label: "ima",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "import { $1 as $2 } from '$3';",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "imports only a portion of the module as alias",
+        },
+        {
+          label: "rqr",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "require('$1');",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "require package",
+        },
+        {
+          label: "req",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "const $1 = require('$2');",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "require package to const",
+        },
+        {
+          label: "mde",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "module.exports = {};",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "default module.exports",
+        },
+        {
+          label: "env",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "export const $1 = $2;",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "exports name variable",
+        },
+        {
+          label: "enf",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "export const $1 = ($2) => { console.log($2); };",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "exports name function",
+        },
+        {
+          label: "edf",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "export default function $1($2) { console.log($2); }",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "exports default function",
+        },
+        {
+          label: "ecl",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "export default class $1 { }",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "exports default class",
+        },
+        {
+          label: "ece",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "export default class $1 extends $2 { }",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "exports default class by extending a base one",
+        },
+        // Class helpers
+        {
+          label: "con",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "constructor() {\n  $0\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "default constructor in the class",
+        },
+        {
+          label: "met",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "$1() {\n  $0\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "method inside a class",
+        },
+        {
+          label: "pge",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "get $1() {\n  return $0;\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "getter property",
+        },
+        {
+          label: "pse",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "set $1(value) {\n  $0\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "setter property",
+        },
+        // Various methods
+        {
+          label: "fre",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "$1.forEach($2 => {\n  $0\n});",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "forEach loop in ES6 syntax",
+        },
+        {
+          label: "fof",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "for (const $1 of $2) {\n  $0\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "for ... of loop",
+        },
+        {
+          label: "fin",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "for (const $1 in $2) {\n  $0\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "for ... in loop",
+        },
+        {
+          label: "anfn",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "($1) => {\n  $0\n}",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "anonymous function",
+        },
+        {
+          label: "nfn",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "const $1 = ($2) => {\n  $0\n};",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "named function",
+        },
+        {
+          label: "dob",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "const { $1 } = $2;",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "destructuring object",
+        },
+        {
+          label: "dar",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "const [ $1 ] = $2;",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "destructuring array",
+        },
+        {
+          label: "sti",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "setInterval(() => {\n  $0\n}, $1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "setInterval helper",
+        },
+        {
+          label: "sto",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "setTimeout(() => {\n  $0\n}, $1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "setTimeout helper",
+        },
+        {
+          label: "prom",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "return new Promise((resolve, reject) => {\n  $0\n});",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "new Promise",
+        },
+        {
+          label: "thenc",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: ".then(res => { $0 }).catch(err => { })",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "then/catch",
+        },
+        // Console methods
+        {
+          label: "cas",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.assert($1, $2);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.assert",
+        },
+        {
+          label: "ccl",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.clear();",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.clear",
+        },
+        {
+          label: "cco",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.count($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.count",
+        },
+        {
+          label: "cdb",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.debug($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.debug",
+        },
+        {
+          label: "cdi",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.dir($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.dir",
+        },
+        {
+          label: "cer",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.error($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.error",
+        },
+        {
+          label: "cgr",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.group($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.group",
+        },
+        {
+          label: "cge",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.groupEnd();",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.groupEnd",
+        },
+        {
+          label: "clg",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.log($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.log",
+        },
+        {
+          label: "clo",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.log('$1 :>> ', $1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.log object with name",
+        },
+        {
+          label: "ctr",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.trace($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.trace",
+        },
+        {
+          label: "cwa",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.warn($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.warn",
+        },
+        {
+          label: "cin",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.info($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.info",
+        },
+        {
+          label: "clt",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.table($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.table",
+        },
+        {
+          label: "cti",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.time($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.time",
+        },
+        {
+          label: "cte",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "console.timeEnd($1);",
+          insertTextRules:
+            monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: "console.timeEnd",
+        },
+      ],
+    };
+  },
+});
